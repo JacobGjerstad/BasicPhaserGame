@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
-        "watch": true,
-        "target": "es5",
-        "module": "commonjs",
         "outDir": "scripts",
-        "esModuleInterop": true 
-    }
+        "target": "es5",
+        "watch": true,
+    },
+    "exclude": [
+        "typescripts/phaser.d.ts"
+    ]
 }
