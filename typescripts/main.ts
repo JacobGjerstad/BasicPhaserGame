@@ -28,6 +28,7 @@ var stars;
 var bombs;
 var cursors;
 var gameOver;
+var movingPlatforms;
 
 function preload(){
     this.load.image('sky', 'images/sky.png');
@@ -45,17 +46,22 @@ function create(){
 
     platforms.create(400, 568, 'base').setScale(2).refreshBody();
 
-    platforms.create(450, 430, 'ground');
     platforms.create(100, 330, 'ground');
     platforms.create(750, 310, 'ground');
     platforms.create(420, 230, 'ground');
-    platforms.create(50, 180, 'ground');
+    platforms.create(30, 180, 'ground');
     platforms.create(620, 120, 'ground');
+
+    movingPlatforms = this.physics.add.image(450, 430, 'ground');
+
+    movingPlatforms.setImmovable(true);
+    movingPlatforms.body.allowGravity = false;
+    movingPlatforms.setVelocityX(50);
 
 
     player = this.physics.add.sprite(100, 450, 'dude');
 
-    player.setBounce(0.2);
+    player.setBounce(0);
     player.setCollideWorldBounds(true);
 
     this.anims.create({
@@ -79,20 +85,22 @@ function create(){
     });
     
     this.physics.add.collider(player, platforms);
+    this.physics.add.collider(player, movingPlatforms);
 
     stars = this.physics.add.group({
         key: 'star',
         repeat: 11,
-        setXY: { x: 12, y: 0, stepX: 70 }
+        setXY: { x: 12, y: 0, stepX: 70 },
     });
 
     stars.children.iterate(function (child) {
     
-        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        child.setBounceY(Phaser.Math.FloatBetween(0.1, 0.4));
     
     });
 
     this.physics.add.collider(stars, platforms);
+    this.physics.add.collider(stars, movingPlatforms);
 
     this.physics.add.overlap(player, stars, collectStar, null, this);
 
@@ -101,6 +109,7 @@ function create(){
     bombs = this.physics.add.group();
 
     this.physics.add.collider(bombs, platforms);
+    this.physics.add.collider(bombs, movingPlatforms);
 
     this.physics.add.collider(player, bombs, hitBomb, null, this);
 }
@@ -109,13 +118,13 @@ function update(){
     cursors = this.input.keyboard.createCursorKeys();
     if (cursors.left.isDown)
     {
-        player.setVelocityX(-160);
+        player.setVelocityX(-150);
 
         player.anims.play('left', true);
     }
     else if (cursors.right.isDown)
     {
-        player.setVelocityX(160);
+        player.setVelocityX(150);
 
         player.anims.play('right', true);
     }
@@ -129,6 +138,15 @@ function update(){
     if (cursors.up.isDown && player.body.touching.down)
     {
         player.setVelocityY(-305);
+    }
+
+    if (movingPlatforms.x >= 550)
+    {
+        movingPlatforms.setVelocityX(-50)
+    }
+    else if(movingPlatforms.x <= 300)
+    {
+        movingPlatforms.setVelocityX(50);
     }
 }
 
@@ -166,4 +184,8 @@ function hitBomb (player, bomb)
     player.anims.play('turn');
 
     gameOver = true;
+
+    if(gameOver == true){
+        alert("Congratulations on getting a score of " + score + "!" + "\nRefresh the page and try and beat it!");
+    }
 }
